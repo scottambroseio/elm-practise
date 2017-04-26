@@ -27,7 +27,7 @@ subscriptions model =
   Sub.none
 
 init topic =
-  (Model topic "https://placehold.it/200x200", Cmd.none)
+  (Model topic "https://placehold.it/200x200", randomGif topic)
 
 view: Model -> Html Message
 view model =
