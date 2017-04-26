@@ -1,8 +1,10 @@
 import Html exposing (..)
+import Html.Attributes exposing (style)
 
 main =
   div []
-    [ h1 [] [ text "This is the heading" ]
-    , p [] [ text "This is some paragraph text"]
+    [ button [] [ text "-" ]
+    , span [ style [("padding", "20px")] ] [ text "0"]
+    , button [] [ text "+" ]
     ]
   
