@@ -4,35 +4,35 @@ import Html.Events exposing (onClick)
 
 main =
   program
-    { init = init
+    { init = init "cats" "waiting.gif"
     , view = view
     , update = update
     , subscriptions = subscriptions
     }
 
 -- Defines alias type
-type alias Model = Int
--- Defines union type
-type Message = Increment | Decrement
+type alias Model =
+  { topic : String
+  , gifUrl : String
+  }
+  
+-- Defines custom type
+type Message = Get
 
 subscriptions model = 
   Sub.none
 
-init =
-  (0, Cmd.none)
+init topic gifUrl =
+  (Model topic gifUrl, Cmd.none)
 
 view: Model -> Html Message
 view model =
     div []
-      [ button [ onClick Decrement ] [ text "-" ]
-      , span [ style [("padding", "20px")] ] [ text <| toString model  ]
-      , button [ onClick Increment ] [ text "+" ]
+      [ button [ onClick Get ] [ text "Get" ]
       ]
 
 update: Message -> Model -> (Model, Cmd Message)
 update msg model =
   case msg of 
-    Increment ->
-      (model + 1, Cmd.none)
-    Decrement ->
-      (model - 1, Cmd.none)
+    Get ->
+      (model, Cmd.none)
