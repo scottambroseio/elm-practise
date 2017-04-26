@@ -1,5 +1,5 @@
 import Html exposing (..)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (src, style)
 import Html.Events exposing (onClick)
 
 main =
@@ -28,7 +28,9 @@ init topic gifUrl =
 view: Model -> Html Message
 view model =
     div []
-      [ button [ onClick Get ] [ text "Get" ]
+      [ h1 [] [ text "Cat Gifs" ]
+      , img [ src model.gifUrl, style [ ("width", "200px"), ("height", "200px") ]] []
+      , button [ style [("display", "block"), ("width", "200px"), ("height","30px")], onClick Get ] [ text "Get" ]
       ]
 
 update: Message -> Model -> (Model, Cmd Message)
