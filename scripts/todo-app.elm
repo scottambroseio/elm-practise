@@ -35,7 +35,7 @@ update msg model =
   case msg of
     AddTodo ->
       { model
-        | todos =  List.append model.todos [ model.textValue ]
+        | todos =  model.todos ++ [ model.textValue ]
         , textValue = ""
       }
       
