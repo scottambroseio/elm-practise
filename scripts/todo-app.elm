@@ -15,6 +15,7 @@ type alias Model =
 type alias Todo =
   { id: Int
   , description: String
+  , completed: Bool
   }
   
 model = 
@@ -26,6 +27,7 @@ model =
 type Msg
   = AddTodo
   | TextValue String
+  | ToggleCompleted Int
 
 view : Model -> Html Msg
 view model =
@@ -43,14 +45,27 @@ update msg model =
   case msg of
     AddTodo ->
       { model
-        | todos =  model.todos ++ [ (Todo model.nextId model.textValue) ]
+        | todos =  model.todos ++ [ (Todo model.nextId model.textValue False) ]
         , textValue = ""
         , nextId = model.nextId + 1
       }
       
     TextValue value ->
-      { model | textValue = value } 
+      { model | textValue = value }
+      
+    ToggleCompleted id ->
+      let
+        toggleCompleted todo =
+          if todo.id == id then
+            { todo | completed = not todo.completed }
+          else
+            todo
+      in
+        { model | todos = List.map toggleCompleted model.todos }
     
 toTodo: Todo -> Html Msg
 toTodo value =
-  div [ id <| toString value.id ] [ text value.description ]
+  if value.completed == True then
+    p [ style [("text-decoration", "line-through")], onClick (ToggleCompleted value.id) ] [ text value.description ]
+  else
+    p [ onClick (ToggleCompleted value.id) ] [ text value.description ]
