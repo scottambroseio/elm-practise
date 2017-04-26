@@ -1,3 +1,4 @@
+-- http://elm-lang.org/try to see
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -6,12 +7,19 @@ main =
   beginnerProgram { model = model, view = view, update = update }
 
 type alias Model =
-  { textValue: String
-  , todos: List String
+  { nextId: Int
+  , textValue: String
+  , todos: List Todo
+  }
+  
+type alias Todo =
+  { id: Int
+  , description: String
   }
   
 model = 
-  { textValue = ""
+  { nextId = 1
+  , textValue = ""
   , todos = []
   }
   
@@ -35,13 +43,14 @@ update msg model =
   case msg of
     AddTodo ->
       { model
-        | todos =  model.todos ++ [ model.textValue ]
+        | todos =  model.todos ++ [ (Todo model.nextId model.textValue) ]
         , textValue = ""
+        , nextId = model.nextId + 1
       }
       
     TextValue value ->
       { model | textValue = value } 
     
-toTodo: String -> Html Msg
+toTodo: Todo -> Html Msg
 toTodo value =
-  p [] [ text value ]
+  div [ id <| toString value.id ] [ text value.description ]
