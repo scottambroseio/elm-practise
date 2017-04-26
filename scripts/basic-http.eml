@@ -1,10 +1,12 @@
 import Html exposing (..)
 import Html.Attributes exposing (src, style)
 import Html.Events exposing (onClick)
+import Http
+import Json.Decode as Decode
 
 main =
   program
-    { init = init "cats" "waiting.gif"
+    { init = init "cats"
     , view = view
     , update = update
     , subscriptions = subscriptions
@@ -17,24 +19,44 @@ type alias Model =
   }
   
 -- Defines custom type
-type Message = Get
+type Message
+  = Get
+  | NewGif (Result Http.Error String)
 
 subscriptions model = 
   Sub.none
 
-init topic gifUrl =
-  (Model topic gifUrl, Cmd.none)
+init topic =
+  (Model topic "https://placehold.it/200x200", Cmd.none)
 
 view: Model -> Html Message
 view model =
     div [style [("text-align", "center")]]
       [ h1 [] [ text "Cat Gifs" ]
       , img [ src model.gifUrl, style [ ("width", "200px"), ("height", "200px") ]] []
-      , div [] [button [ style [("display", "inline-block"), ("width", "200px"), ("height","30px")], onClick Get ] [ text "Get" ]]
+      , div []
+          [ button [ style [("display", "inline-block"), ("width", "200px"), ("height","30px")], onClick Get ] [ text "Get" ]
+          ]
       ]
+
+randomGif: String -> Cmd Message
+randomGif topic =
+  let
+    url = "http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=" ++ topic
+  in
+    Http.send NewGif <| Http.get url decode
+
+decode = 
+  Decode.at ["data", "image_url"] Decode.string
 
 update: Message -> Model -> (Model, Cmd Message)
 update msg model =
   case msg of 
     Get ->
+      (model, randomGif model.topic)
+    
+    NewGif (Ok newUrl) ->
+      (Model model.topic newUrl, Cmd.none)
+
+    NewGif (Err _) ->
       (model, Cmd.none)
