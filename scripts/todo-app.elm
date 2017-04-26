@@ -24,12 +24,13 @@ view model =
   div [] 
     [ h1 [] [ text "Todos" ]
     , div []
-      [ input [ type_ "text", onInput TextValue ] []
+      [ input [ type_ "text", onInput TextValue, value model.textValue ] []
       , button [ onClick AddTodo ] [ text "Add Todo" ]
       ]
     , List.map toTodo model.todos |> div []
     ]
-    
+
+update: Msg -> Model -> Model
 update msg model =
   case msg of
     AddTodo ->
@@ -41,6 +42,6 @@ update msg model =
     TextValue value ->
       { model | textValue = value } 
     
-toTodo: String -> Html msg
+toTodo: String -> Html Msg
 toTodo value =
   p [] [ text value ]
