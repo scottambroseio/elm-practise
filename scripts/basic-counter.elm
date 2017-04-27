@@ -9,25 +9,32 @@ main =
     , update = update
     }
 
--- Defines alias type
-type alias Model = Int
--- Defines union type
-type Message = Increment | Decrement
+type alias Model =
+  { current: Int
+  , step: Int
+  }
 
-model = 0
+type Message
+  = Increment
+  | Decrement
+
+model =
+  { current = 0
+  , step = 5
+  }
 
 view: Model -> Html Message
 view model =
     div []
       [ button [ onClick Decrement ] [ text "-" ]
-      , span [ style [("padding", "20px")] ] [ text <| toString model  ]
+      , span [ style [("padding", "20px")] ] [ text <| toString model.current ]
       , button [ onClick Increment ] [ text "+" ]
       ]
 
 update: Message -> Model -> Model
 update msg model =
-  case msg of 
+  case msg of
     Increment ->
-      model + 1
+      { model | current = model.current + model.step }
     Decrement ->
-      model - 1
+      { model | current = model.current - model.step }

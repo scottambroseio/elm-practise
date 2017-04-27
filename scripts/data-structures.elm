@@ -1,7 +1,7 @@
 import Html
 import List
 import Tuple
-    
+
 main =
   --listfn [1,2,3,4,5]
   --tuplefn (True, 1, "2")
@@ -18,7 +18,7 @@ listfn list =
       |> toString
         |> Html.text
 
-tuplefn tuple = 
+tuplefn tuple =
   tuple
     |> toString
       |> Html.text
