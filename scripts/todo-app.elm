@@ -2,6 +2,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Date exposing (..)
+import Date.Format exposing (format)
 import Task
 
 main =
@@ -104,27 +105,10 @@ toTodo value =
 createdAt: Maybe Date -> String
 createdAt date =
   case date of
-    Nothing -> ""
-    Just date -> "Created at: "
-      ++ (addLeadingSpace <| toString <| (dayOfWeek date))
-      ++ (addLeadingSpace <| toString <| (day date))
-      ++ (addLeadingSpace <| toString <| month date)
-      ++ (year date |> toString |> addLeadingSpace)
-      ++ " - "
-      ++ ((hour date |> toString) ++ ":")
-      ++ (minute date |> toString)
-      ++ (postfix date)
-
-postfix: Date -> String
-postfix date =
-  if hour date > 12 then
-    "PM"
-  else
-    "AM"
-
-addLeadingSpace: String -> String
-addLeadingSpace str =
-  str ++ " "
+    Nothing ->
+      ""
+    Just date ->
+      format "Created at: %a %e %b %Y - %k:%M%p" date
 
 subscriptions model =
   Sub.none
