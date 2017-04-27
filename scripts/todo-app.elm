@@ -2,6 +2,7 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import List exposing (filter)
 
 main = 
   program { init = init, view = view, update = update, subscriptions = subscriptions }
@@ -21,7 +22,7 @@ type alias Todo =
 init =
   let
     model = 
-      { nextId = 1
+      { nextId = 0
       , textValue = ""
       , todos = []
       }
@@ -32,6 +33,7 @@ type Msg
   = AddTodo
   | TextValue String
   | ToggleCompleted Int
+  | DeleteTodo Int
 
 view : Model -> Html Msg
 view model =
@@ -66,13 +68,21 @@ update msg model =
             todo
       in
         ({ model | todos = List.map toggleCompleted model.todos }, Cmd.none)
-    
+    DeleteTodo id ->
+      ({ model | todos = filter (\t -> t.id /= id) model.todos }, Cmd.none)
+      
+    --
 toTodo: Todo -> Html Msg
 toTodo value =
   if value.completed == True then
-    p [ style [("text-decoration", "line-through")], onClick (ToggleCompleted value.id) ] [ text value.description ]
+    div [ onClick (ToggleCompleted value.id) ]
+    [ p [ style [("text-decoration", "line-through")] ] [text value.description]
+    , button [ onClick (DeleteTodo value.id) ] [ text "Delete" ]
+    ]
   else
-    p [ onClick (ToggleCompleted value.id) ] [ text value.description ]
-    
+    div [ onClick (ToggleCompleted value.id) ]
+    [ p [] [text value.description]
+    , button [ onClick (DeleteTodo value.id) ] [ text "Delete" ]
+    ]    
 subscriptions model =
   Sub.none
