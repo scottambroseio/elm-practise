@@ -1,7 +1,7 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Date exposing (Date)
+import Date exposing (..)
 import Task
 
 main =
@@ -89,22 +89,42 @@ update msg model =
 toTodo: Todo -> Html Msg
 toTodo value =
   if value.completed == True then
-    div [ onClick (ToggleCompleted value.id) ]
-    [ p [ style [("text-decoration", "line-through")] ] [text value.description]
+    div []
+    [ p [ onClick (ToggleCompleted value.id), style [("text-decoration", "line-through")] ] [text value.description]
     , button [ onClick (DeleteTodo value.id) ] [ text "Delete" ]
-    , div [] [ dateToText value.date ]
+    , div [] [ text <| createdAt value.date ]
     ]
   else
-    div [ onClick (ToggleCompleted value.id) ]
-    [ p [] [text value.description]
+    div []
+    [ p [ onClick (ToggleCompleted value.id) ] [text value.description]
     , button [ onClick (DeleteTodo value.id) ] [ text "Delete" ]
-    , div [] [ dateToText value.date ]
+    , div [] [ text <| createdAt value.date ]
     ]
--- dayOfWeek date ++ " " ++ day ++ " " ++
-dateToText date =
+
+createdAt: Maybe Date -> String
+createdAt date =
   case date of
-    Nothing -> text ""
-    Just date -> toString date |> text
+    Nothing -> ""
+    Just date -> "Created at: "
+      ++ (addLeadingSpace <| toString <| (dayOfWeek date))
+      ++ (addLeadingSpace <| toString <| (day date))
+      ++ (addLeadingSpace <| toString <| month date)
+      ++ (year date |> toString |> addLeadingSpace)
+      ++ " - "
+      ++ ((hour date |> toString) ++ ":")
+      ++ (minute date |> toString)
+      ++ (postfix date)
+
+postfix: Date -> String
+postfix date =
+  if hour date > 12 then
+    "PM"
+  else
+    "AM"
+
+addLeadingSpace: String -> String
+addLeadingSpace str =
+  str ++ " "
 
 subscriptions model =
   Sub.none
