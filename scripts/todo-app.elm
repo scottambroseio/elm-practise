@@ -4,7 +4,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 
 main = 
-  beginnerProgram { model = model, view = view, update = update }
+  program { init = init, view = view, update = update, subscriptions = subscriptions }
 
 type alias Model =
   { nextId: Int
@@ -18,11 +18,15 @@ type alias Todo =
   , completed: Bool
   }
   
-model = 
-  { nextId = 1
-  , textValue = ""
-  , todos = []
-  }
+init =
+  let
+    model = 
+      { nextId = 1
+      , textValue = ""
+      , todos = []
+      }
+  in
+    (model, Cmd.none)
   
 type Msg
   = AddTodo
@@ -40,18 +44,18 @@ view model =
     , List.map toTodo model.todos |> div []
     ]
 
-update: Msg -> Model -> Model
+update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     AddTodo ->
-      { model
+      ({ model
         | todos =  model.todos ++ [ (Todo model.nextId model.textValue False) ]
         , textValue = ""
         , nextId = model.nextId + 1
-      }
+      }, Cmd.none)
       
     TextValue value ->
-      { model | textValue = value }
+      ({ model | textValue = value }, Cmd.none)
       
     ToggleCompleted id ->
       let
@@ -61,7 +65,7 @@ update msg model =
           else
             todo
       in
-        { model | todos = List.map toggleCompleted model.todos }
+        ({ model | todos = List.map toggleCompleted model.todos }, Cmd.none)
     
 toTodo: Todo -> Html Msg
 toTodo value =
@@ -69,3 +73,6 @@ toTodo value =
     p [ style [("text-decoration", "line-through")], onClick (ToggleCompleted value.id) ] [ text value.description ]
   else
     p [ onClick (ToggleCompleted value.id) ] [ text value.description ]
+    
+subscriptions model =
+  Sub.none
