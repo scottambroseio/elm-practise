@@ -12,13 +12,13 @@ type alias Model =
   { nextId: Int
   , textValue: String
   , todos: List Todo
-  , date: Maybe Date
   }
   
 type alias Todo =
   { id: Int
   , description: String
   , completed: Bool
+  , date: Maybe Date
   }
   
 init =
@@ -27,17 +27,16 @@ init =
       { nextId = 0
       , textValue = ""
       , todos = []
-      , date = Nothing
       }
   in
-    (model, Task.perform NewDate Date.now)
+    (model, Cmd.none)
   
 type Msg
   = AddTodo
   | TextValue String
   | ToggleCompleted Int
   | DeleteTodo Int
-  | NewDate (Date)
+  | AddDateToTodo Int Date
 
 view : Model -> Html Msg
 view model =
@@ -48,25 +47,21 @@ view model =
       , button [ onClick AddTodo ] [ text "Add Todo" ]
       ]
     , List.map toTodo model.todos |> div []
-    , div []
-      [ p [] [ getDate model ]
-      ]
+    , div [] []
     ]
-    
-getDate model =
-  case model.date of
-    Nothing -> text ""
-    Just date -> toString date |> text
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     AddTodo ->
-      ({ model
-        | todos =  model.todos ++ [ (Todo model.nextId model.textValue False) ]
-        , textValue = ""
-        , nextId = model.nextId + 1
-      }, Cmd.none)
+      let
+        currentId = model.nextId
+      in
+        ({ model
+          | todos =  model.todos ++ [ (Todo currentId model.textValue False Nothing) ]
+          , textValue = ""
+          , nextId = model.nextId + 1
+        }, Task.perform (AddDateToTodo currentId) Date.now)
       
     TextValue value ->
       ({ model | textValue = value }, Cmd.none)
@@ -82,8 +77,15 @@ update msg model =
         ({ model | todos = List.map toggleCompleted model.todos }, Cmd.none)
     DeleteTodo id ->
       ({ model | todos = List.filter (\t -> t.id /= id) model.todos }, Cmd.none)
-    NewDate date ->
-      ({ model | date = Just date }, Cmd.none)
+    AddDateToTodo id date -> 
+      let
+        changeDate todo =
+          if todo.id == id then
+            { todo | date = Just date }
+          else
+           todo
+      in
+        ({ model | todos = List.map changeDate model.todos }, Cmd.none)     
 
 toTodo: Todo -> Html Msg
 toTodo value =
@@ -91,11 +93,19 @@ toTodo value =
     div [ onClick (ToggleCompleted value.id) ]
     [ p [ style [("text-decoration", "line-through")] ] [text value.description]
     , button [ onClick (DeleteTodo value.id) ] [ text "Delete" ]
+    , div [] [ dateToText value.date ]
     ]
   else
     div [ onClick (ToggleCompleted value.id) ]
     [ p [] [text value.description]
     , button [ onClick (DeleteTodo value.id) ] [ text "Delete" ]
-    ]    
+    , div [] [ dateToText value.date ]
+    ] 
+-- dayOfWeek date ++ " " ++ day ++ " " ++
+dateToText date =
+  case date of
+    Nothing -> text ""
+    Just date -> toString date |> text
+    
 subscriptions model =
   Sub.none
