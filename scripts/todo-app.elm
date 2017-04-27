@@ -2,7 +2,8 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import List exposing (filter)
+import Date exposing (Date)
+import Task
 
 main = 
   program { init = init, view = view, update = update, subscriptions = subscriptions }
@@ -11,6 +12,7 @@ type alias Model =
   { nextId: Int
   , textValue: String
   , todos: List Todo
+  , date: Maybe Date
   }
   
 type alias Todo =
@@ -25,15 +27,17 @@ init =
       { nextId = 0
       , textValue = ""
       , todos = []
+      , date = Nothing
       }
   in
-    (model, Cmd.none)
+    (model, Task.perform NewDate Date.now)
   
 type Msg
   = AddTodo
   | TextValue String
   | ToggleCompleted Int
   | DeleteTodo Int
+  | NewDate (Date)
 
 view : Model -> Html Msg
 view model =
@@ -44,7 +48,15 @@ view model =
       , button [ onClick AddTodo ] [ text "Add Todo" ]
       ]
     , List.map toTodo model.todos |> div []
+    , div []
+      [ p [] [ getDate model ]
+      ]
     ]
+    
+getDate model =
+  case model.date of
+    Nothing -> text ""
+    Just date -> toString date |> text
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -69,9 +81,10 @@ update msg model =
       in
         ({ model | todos = List.map toggleCompleted model.todos }, Cmd.none)
     DeleteTodo id ->
-      ({ model | todos = filter (\t -> t.id /= id) model.todos }, Cmd.none)
-      
-    --
+      ({ model | todos = List.filter (\t -> t.id /= id) model.todos }, Cmd.none)
+    NewDate date ->
+      ({ model | date = Just date }, Cmd.none)
+
 toTodo: Todo -> Html Msg
 toTodo value =
   if value.completed == True then
