@@ -2,4 +2,4 @@
 
 An educational project for myself - learning the basics of the Elm language through a series of basic scripts focusing on different aspects of the language as well as functional programming concepts in general
 
-These scripts can be run using [http://elm-lang.org/try](http://elm-lang.org/try) (with the exception of the todo script which needs to be run locally)
+All these scripts can be run using [http://elm-lang.org/try](http://elm-lang.org/try)
