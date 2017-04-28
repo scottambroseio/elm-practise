@@ -3,6 +3,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Date exposing (Date)
 import List
+import Task
 
 main: Program Never Model Message
 main =
@@ -26,6 +27,7 @@ type Message
   | DeleteTodo Int
   | ToggleCompletedTodo Int
   | OnInputValue String
+  | ReceiveCurrentDate Int Date
 
 init: (Model, Cmd Message)
 init =
@@ -41,6 +43,10 @@ view model =
     ]
   , div [] [ todoList model ]
   ]
+
+getCurrentDate: Int -> Cmd Message
+getCurrentDate id =
+  Task.perform (ReceiveCurrentDate id) Date.now
 
 todoList: Model -> Html Message
 todoList model =
@@ -72,9 +78,10 @@ update msg model =
       ({ model | inputValue = value }, Cmd.none)
     CreateTodo ->
       let
+        id = model.nextId
         todos = newTodo model :: model.todos
       in
-      ({ model | inputValue = "", todos = todos, nextId = model.nextId + 1 }, Cmd.none)
+      ({ model | inputValue = "", todos = todos, nextId = id + 1 }, getCurrentDate id)
     DeleteTodo id ->
       let
         todos = List.filter (\t -> t.id /= id) model.todos
@@ -83,6 +90,11 @@ update msg model =
     ToggleCompletedTodo id ->
       let
         todos = List.map (\t -> if t.id == id then { t | isCompleted = not t.isCompleted } else t ) model.todos
+      in
+        ({ model | todos = todos }, Cmd.none)
+    ReceiveCurrentDate id date ->
+      let
+        todos = List.map (\t -> if t.id == id then { t | createdAt = Just date } else t ) model.todos
       in
         ({ model | todos = todos }, Cmd.none)
 
